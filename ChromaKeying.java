@@ -41,7 +41,7 @@ class ChromaKeying extends Frame {
 		height = personImage.getHeight();
 
 		matteImage = ChromaKeyMatte(personImage);
-		keyMixedImage = KeyMix(personImage, backgroundImage, keyMixedImage);
+		keyMixedImage = KeyMix(personImage, backgroundImage, matteImage);
 
 		//Anonymous inner-class listener to terminate program
 		this.addWindowListener( new WindowAdapter() {
@@ -62,8 +62,19 @@ class ChromaKeying extends Frame {
 		//apply the operation to each pixel
 		for (int x = 0; x < width; x++) { 
 			for (int y = 0; y < height; y++) {
-//				int rgb = img.getRGB(x, y);
-//				copy.setRGB(x, y, rbg);
+				int rgb = img.getRGB(x, y);
+				int alpha = (rgb >>> 24) & 0xff;
+				int red = (rgb >>> 16) & 0xff;
+				int green = (rgb >>> 8) & 0xff;
+				int blue = rgb & 0xff; 
+				float[] hsb = new float[3];
+				Color.RGBtoHSB(red, green, blue, hsb);
+				
+				if (hsb[0] >= 0.3f && hsb[0] <= 0.5f && hsb[1] >= 0.25f && hsb[2] >= 0.2f) {
+					copy.setRGB(x, y, new Color(0, 0, 0).getRGB());
+				} else {
+					copy.setRGB(x, y, new Color(255, 255, 255).getRGB());
+				}
 			}
 		}
 		return copy; 
@@ -80,15 +91,27 @@ class ChromaKeying extends Frame {
 		//apply the operation to each pixel
 		for (int x = 0; x < width; x++) { 
 			for (int y = 0; y < height; y++) {
+				int[] rgbs = new int[3];
+				float[] reds = new float[3];
+				float[] greens = new float[3];
+				float[] blues = new float[3];
+				float red, green, blue;
 				
-//				red = (reds[0] * reds[2]) + ((1.0f-reds[2]) * reds[1]);
-//				green = (greens[0] * greens[2]) + ((1.0f-greens[2]) * greens[1]);
-//				blue = (blues[0] * blues[2]) + ((1.0f-blues[2]) * blues[1]);
-//				
-//				return new Color((int)(red*255), (int)(green*255), (int)(blue*255)).getRGB();
-//				
-//				int rgb = img.getRGB(x, y);
-//				copy.setRGB(x, y, rbg);
+				rgbs[0] = fimg.getRGB(x, y);
+				rgbs[1] = bimg.getRGB(x, y);
+				rgbs[2] = matte.getRGB(x, y);
+				
+				for (int i = 0; i < rgbs.length; i++) {
+					reds[i] = (float)((rgbs[i] >>> 16) & 0xff) / 255;
+					greens[i] = (float)((rgbs[i] >>> 8) & 0xff) / 255;
+					blues[i] = (float)(rgbs[i] & 0xff) / 255; 
+				}
+				
+				red = (reds[0] * reds[2]) + ((1.0f-reds[2]) * reds[1]);
+				green = (greens[0] * greens[2]) + ((1.0f-greens[2]) * greens[1]);
+				blue = (blues[0] * blues[2]) + ((1.0f-blues[2]) * blues[1]);
+				
+				copy.setRGB(x, y, new Color((int)(red*255), (int)(green*255), (int)(blue*255)).getRGB());
 			}
 		}
 		return copy; 
