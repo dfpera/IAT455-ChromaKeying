@@ -10,6 +10,7 @@ Output from your code should show:
 * final composite result
 
 Example Output:
+
 ![Rendered Code Example](exampleCompile.png)
 
 The code should have explanatory comments and should be submitted in zip format, as project
