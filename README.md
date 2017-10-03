@@ -9,6 +9,9 @@ Output from your code should show:
 * intermediate images (if there are any)
 * final composite result
 
+Example Output:
+![Rendered Code Example](exampleCompile.png)
+
 The code should have explanatory comments and should be submitted in zip format, as project
 exported from Eclipse. Name your project in this format: FirstnameLastNameA1 (for example:
 JohnSmithA1).
